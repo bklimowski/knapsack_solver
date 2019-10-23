@@ -17,6 +17,13 @@
  * 7. exponent and uniform draw
  */
 
+/*
+ * Implement in R / python
+ * Genetic Algorithm
+ * Tabu Search
+ * Dynamic Programming
+ */
+
 #include <iostream>
 #include <random>
 #include <vector>
