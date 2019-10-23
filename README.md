@@ -6,8 +6,7 @@ This repository contains
 + Simulated annealing
 + Dynamic Programming
 + Genetic Algorithm
-+ Tabu search
-+ Hill Climbing
++ (quasi) Tabu search
 
 # Program workflow
 
