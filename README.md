@@ -7,6 +7,7 @@ This repository contains
 + Dynamic Programming
 + Genetic Algorithm
 + Tabu search
++ Hill Climbing
 
 # Program workflow
 
