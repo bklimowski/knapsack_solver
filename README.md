@@ -1,8 +1,12 @@
 # Knapsack_solver
 This repository contains 
 
+
++ Greedy method
 + Simulated annealing
-+ Dymamical programming
++ Dynamic Programming
++ Genetic Algorithm
++ Tabu search
 
 # Program workflow
 
