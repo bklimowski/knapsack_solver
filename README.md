@@ -1,4 +1,4 @@
-# Knapsack_solver
+# knapsack_solver
 This repository contains 
 
 
