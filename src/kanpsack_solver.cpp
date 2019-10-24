@@ -22,18 +22,19 @@
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include <iterator>
 #include <unistd.h>
 
 template <typename T>
-std::vector<size_t> sort_indexes(const std::vector<T> &v) {
+std::vector<int> sort_indexes(const std::vector<T> &v) {
 
   // initialize original index locations
-  std::vector<size_t> idx(v.size());
+  std::vector<int> idx(v.size());
   std::iota(idx.begin(), idx.end(), 0);
 
   // sort indexes based on comparing values in v
   std::sort(idx.begin(), idx.end(),
-       [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
+       [&v](int i1, int i2) {return v[i1] < v[i2];});
 
   return idx;
 }
@@ -83,38 +84,118 @@ void program_intro(){
 	std::cout << std::endl;
 }
 
-int main() {
+template<typename T>
+std::vector<T> slice(std::vector<T> const &v, int m, int n)
+{
+    auto first = v.cbegin() + m;
+    auto last = v.cbegin() + n;
 
-	program_intro();
+    std::vector<T> vec(first, last);
+    return vec;
+}
 
-	int capacity { 10 };
+template<typename T1, typename T2>
+std::vector<double> calc_ratios(std::vector<T1> vec1, std::vector<T2> vec2) {
 
-	std::random_device rd {};
-	std::mt19937 mt(rd());
+	std::vector<double> ratios;
 
-	std::normal_distribution<double> norm_dist1(1, 1.0);
-	std::vector<double> weigths = draw_from_dist(10, norm_dist1, mt);
+	for (auto ii = 0; ii < vec1.size(); ii++) {
+		ratios.push_back(vec1[ii]/vec2[ii]);
+	}
 
+	return ratios;
 
-	print_vector(weigths);
-	auto sorted_indexes = sort_indexes(weigths);
-	std::reverse(sorted_indexes.begin(), sorted_indexes.end());
-	print_vector(sorted_indexes);
+}
+
+template<typename T1, typename T2, typename T3>
+std::vector<int> initialize_naive_solution(std::vector<T1> weights, std::vector<T2> values, T3 capacity) {
+
+//	std::vector<int> naive_solution;
+	std::vector<double> ratios = calc_ratios(weights, values);
+	std::vector<int> sorted_ratios = sort_indexes(ratios);
+
 
 	int total_weigth { 0 };
 	int n_top_items { 0 };
 
-	while(total_weigth < capacity) {
-		total_weigth += weigths[sorted_indexes[n_top_items]];
+	while(total_weigth <= capacity) {
+		total_weigth += weights[sorted_ratios[n_top_items]];
+		//std::cout <<  weights[sorted_ratios[n_top_items]] << std::endl;
 		n_top_items++;
-		std::cout << n_top_items;
 	}
 
-	std::cout << std::endl;
+	std::vector<int> naive_solution = slice(sorted_ratios, 0, n_top_items);
 
-	for (int ii = 0; ii < n_top_items; ++ii) {
-		std::cout << sorted_indexes[ii] + 1 << " ";
-	}
+	return naive_solution;
 }
+
+std::vector<int> range(int upper_limit) {
+	std::vector<int> range_vector;
+
+	for (int ii = 0; ii < upper_limit; ii++) {
+		range_vector.push_back(ii);
+	}
+
+	return range_vector;
+}
+
+template<typename T>
+std::vector<T> set_difference(std::vector<T> &v1, std::vector<T> &v2){
+
+	std::vector<T> v3;
+
+    std::sort(v1.begin(), v1.end());
+    std::sort(v2.begin(), v2.end());
+
+    std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), std::inserter(v3, v3.begin()));
+    return v3;
+}
+
+template<typename T>
+T draw_element(std::vector<T> &v) {
+
+	std::random_device rd {};
+	std::mt19937 mt(rd());
+
+	std::uniform_int_distribution<int> uniform(0, v.size());
+	auto sample = draw_from_dist(1, uniform, mt);
+	return v[sample[0]];
+}
+
+
+int main() {
+
+	program_intro();
+
+//	int capacity { 10 };
+//
+//	std::random_device rd {};
+//	std::mt19937 mt(rd());
+//	std::poisson_distribution<int> pois1 { 10 };
+//	auto weights = draw_from_dist(10, pois1, mt);
+//	std::poisson_distribution<int> pois2 { 20 };
+//	auto values = draw_from_dist(10, pois2, mt);
+//	print_vector(slice(weights,0,2));
+//
+//	std::vector<int> naive_solution = initialize_naive_solution(weights, values, capacity);
+//
+//	print_vector(weights);
+//	print_vector(values);
+//	print_vector(naive_solution);
+
+	auto test = range(10);
+	auto slice_v = slice(test, 0, 5);
+	print_vector(test);
+	print_vector(slice_v);
+
+	auto a = set_difference(test, slice_v);
+
+	print_vector(a);
+	std::cout << draw_element(test);
+	std::cout << draw_element(test);
+	return 0;
+}
+
+
 
 
