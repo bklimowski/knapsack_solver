@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <iterator>
 #include <unistd.h>
+#include <math.h>
 
 template <typename T>
 std::vector<int> sort_indexes(const std::vector<T> &v) {
@@ -92,8 +93,7 @@ void program_intro(){
 }
 
 template<typename T>
-std::vector<T> slice(std::vector<T> const &v, int m, int n)
-{
+std::vector<T> slice(std::vector<T> const &v, int m, int n){
     auto first = v.cbegin() + m;
     auto last = v.cbegin() + n;
 
@@ -116,7 +116,6 @@ std::vector<double> calc_ratios(std::vector<T1> vec1, std::vector<T2> vec2) {
 
 template<typename T1, typename T2, typename T3>
 std::vector<int> initialize_naive_solution(std::vector<T1> weights, std::vector<T2> values, T3 capacity) {
-
 //	std::vector<int> naive_solution;
 	std::vector<double> ratios = calc_ratios(weights, values);
 	std::vector<int> sorted_ratios = sort_indexes(ratios);
@@ -131,7 +130,7 @@ std::vector<int> initialize_naive_solution(std::vector<T1> weights, std::vector<
 		n_top_items++;
 	}
 
-	std::vector<int> naive_solution = slice(sorted_ratios, 0, n_top_items);
+	std::vector<int> naive_solution = slice(sorted_ratios, 0, n_top_items - 1);
 
 	return naive_solution;
 }
@@ -169,37 +168,94 @@ T draw_element(std::vector<T> &v) {
 	return v[sample[0]];
 }
 
+// template<typename T1, typename T2, typename T3>
+// std::vector<int> simulated_annealing_solver(std::vector<T1> weights, std::vector<T2> values, T3 capacity){
+// 	std::vector<int> solution_proposition = initialize_naive_solution(weights, values, capacity);
+
+// 	set_difference(range(weights.size))
+
+
+// }
+
+template<typename T1, typename T2>
+bool is_solution_valid(std::vector<int> indexes, std::vector<T1> weights, T2 capacity){
+	
+	int total_weigth = 0;
+
+	for (int ii: indexes) {
+		total_weigth += weights[ii];
+	}
+
+	return (total_weigth <= capacity);
+}
+
+template<typename T1>
+double calculate_value(std::vector<int> indexes, std::vector<T1> values){
+	double total_value;
+
+	for (int ii: indexes) {
+		total_value += values[ii];
+	}
+
+	return total_value;
+}
+
+template<typename T> 
+std::vector<T> shuffle_vector(std::vector<T> &v){
+	std::vector<T> shuffled = v;
+	std::random_shuffle(shuffled.begin(), shuffled.end());
+	return(shuffled);
+}
+
+template<typename T>
+std::vector<T> drop_random_element(std::vector<T> &v){
+	std::vector<T> tmp_shuffled = shuffle_vector(v);
+	tmp_shuffled.pop_back();
+	return(tmp_shuffled);
+}
+
+template<typename T1, typename T2>
+std::vector<int> reduce_solution(std::vector<int> proposition, std::vector<T1> weights,
+                                 int input, T2 capacity){
+	
+	std::vector<int> current_solution = proposition;
+	current_solution.push_back(input);
+	bool flag = is_solution_valid(current_solution, weights, capacity);
+		
+	if (!flag){
+		return reduce_solution(drop_random_element(proposition), weights,
+		                                         input, capacity);
+	} else {
+		return current_solution;
+	}
+}
 
 int main() {
 
 	program_intro();
 
-//	int capacity { 10 };
-//
-//	std::random_device rd {};
-//	std::mt19937 mt(rd());
-//	std::poisson_distribution<int> pois1 { 10 };
-//	auto weights = draw_from_dist(10, pois1, mt);
-//	std::poisson_distribution<int> pois2 { 20 };
-//	auto values = draw_from_dist(10, pois2, mt);
-//	print_vector(slice(weights,0,2));
-//
-//	std::vector<int> naive_solution = initialize_naive_solution(weights, values, capacity);
-//
-//	print_vector(weights);
-//	print_vector(values);
-//	print_vector(naive_solution);
+	int capacity { 50 };
 
-	auto test = range(10);
-	auto slice_v = slice(test, 0, 5);
-	print_vector(test);
-	print_vector(slice_v);
+	std::random_device rd {};
+	std::mt19937 mt(rd());
+	std::poisson_distribution<int> pois1 { 10 };
+	auto weights = draw_from_dist(15, pois1, mt);
+	std::poisson_distribution<int> pois2 { 20 };
+	auto values = draw_from_dist(15, pois2, mt);
 
-	auto a = set_difference(test, slice_v);
+	auto indexes = range(values.size());
 
-	print_vector(a);
-	std::cout << draw_element(test);
-	std::cout << draw_element(test);
+	std::vector<int> naive_solution = initialize_naive_solution(weights, values, capacity);
+	auto propositions = set_difference(indexes, naive_solution);
+
+	double current_value = calculate_value(naive_solution, values);
+	auto a = reduce_solution(naive_solution, weights, draw_element(propositions), capacity);
+	
+	double proposition_value = calculate_value(a, values);
+	double probability = std::min(1.0, exp(proposition_value - current_value));
+	std::cout << probability;
+
+
 	return 0;
 }
 
