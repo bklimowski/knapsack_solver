@@ -2,7 +2,6 @@
 #include <vector>
 #include <random>
 #include <cmath>
-//set random seed
 std::mt19937 mt_engine(137);
 
 void program_welcome(){
@@ -23,10 +22,10 @@ struct knapsack_problem {
 };
 
 void transfer_random_element(std::vector<int>& V1, std::vector<int>& V2) {
-    std::uniform_int_distribution<> unif(0, V1.size() - 1);
-    int random_element = unif(mt_engine);
-    V2.push_back(V1[random_element]);
-    V1.erase(V1.begin() + random_element);
+	std::uniform_int_distribution<> unif(0, V1.size() - 1);
+	int random_element = unif(mt_engine);
+	V2.push_back(V1[random_element]);
+	V1.erase(V1.begin() + random_element);
 }
 
 float sum_vector(std::vector<float> values, std::vector<int> idx){
